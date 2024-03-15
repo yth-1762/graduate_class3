@@ -26,21 +26,17 @@ Id=2896084 (데이터 출처)
 - BIC, RMSE
 
 # 데이터 전처리
-- 6월 1일부터 6월 8일 까지의 총 2000개 데이터만 활용(비가 오지 않으면서 지방선거 날과 현충일이 있는 등 8일동안 평일과 휴일이 적절히 잘 섞여 있는 기간이기에 이 기간으로 설정)
-- ‘대여시간’ 변수의 범주는 0시부터 23시까지 총 24개의 범주로 이루어져 있다. 0시부터 06시 사이의 이용자수들은 다른 시간대에 비해 상대적으로 이용자수가 적기 때문에 이 시간대 이용자들은 분석 대상에 미포함(3시간 간격으로 총 6개범주로 처리).
-- AGE_TYPE 변수는 60대 70대는 50대와 통합
-- USE_CNT 변수는 이용건수가 1번인 이용자 1, 1번 이상인 이용자는 0으로 처리
-- USE_TYPE 변수는  정기권은 1, 정기권이 아닌 이용권들은 0으로 처리
-- FEATURE ENGINEERING: RENT_SPOT(대여장소)(업무,지하철,주거), park(공원 인접 여부), holiday(휴일 여부)
+- 12000개의 데이터만 무작위로 추출
+- tweets 변수에서 텍스트만 반영하기 위해 https:// 부분, 특수문자 제거 이후 사전을 만든 후 정수형으로 인코딩
+- 종속변수는 good tweet는 1, neutral tweet는 0, bat tweet는 –1로 처리한 후 원핫인코딩 실시
+- train data, test data 8:2 비율로 설정
 
 # 프로젝트 내용
-- BIC 기준(k=2일때 -10657.99, k=3일때 -10122.29, k=4일때 -9835.712) component가 2인 GMM 모형 fitting /추정 latent variable: 속도, 긴박성
-- BIC 기준(k=3일때 -155586.71, k=4일때 -14672.784, k=5일때 -14601.217) component가 3인 MoE 모형 fitting / 추정latent variable: riding purpose, willpower(desire) of riding
-- MoE 모형 으로 나온 cluster 별 평균 운동량 예측(cluster1: 83.01738, cluster2: 80.8889, cluster3: 191.2407)
-- 운동량의 RMSE와 MAE를 기준으로 MoE를 RANDOM FOREST와 LINEAR MODEL과 비교
-- RMSE(randomforest: 61.07248, linear model: 30.85834, MoE: 27.87566) -> MoE가 가장 좋은 성능 보임
+- RNN 모형 FITTING(epochs=10, batch size= 32, optimizer=adam, loss=categorical entropy, activation=softmax, 유닛수=64, bidirectional(return_sequences=True) 1번,bidirectional 1번 dropout(0.2)옵션 1번 추가)
+- LSTM 모형 FITTING(epochs=10, batch size 32, optimizer=adam, loss=categorical entropy, activation=softmax, 유닛수=128,bidirectional(return_sequences=True) 1번, dropout(0.2)옵션 1번 추가)
+- GRU 모형 FITTING(epochs=10, batch size 32, optimizer=adam, loss=categorical entropy, activation=softmax, 유닛수=128,bidirectional(return_sequences=True, recurrent_dropout=0.2) 1번, bidirectional(recurrent_dropout=0.2) 1번 dropout(0.2)옵션 1번 추가)
+- test data accuracy 기준(RNN: 64.46%, LSTM: 69.29, GRU: 72.29%) GRU 모형 최종 선택
 
 
 # 기대효과
-- 서울시(여의도, 상암지역)의 공공자전거 이용자 분류를 MoE를 통해 분류하여 이들이 어떤 component에 속할지 예측.  
-- 얼마만큼의 운동량을 가지는지 예측.
+- 향후 chatgpt에 대한 의견을 나타내는 tweets이 앞으로도 계속 생겨날 것이고 이 모델을 통해 chatgpt에 대한 전반적인 여론이 어떠한지 파악
